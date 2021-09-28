@@ -1,0 +1,185 @@
+openapi: 3.0.0
+
+info:
+  title: Playlist api
+  description: Api for managing playlists
+  contact:
+    name: Playlists
+    url: http://127.0.0.1:5000/
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:5000
+
+paths:
+  /playlists:
+    description: Playlists resource
+    get:
+      description: Operation to fetch playlists
+      parameters:
+        - in: query
+          name: playlistName
+          required: false
+          schema:
+            type: string
+            example: rock
+      responses:
+        200:
+          description: Success Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    name:
+                      type: string
+                      example: rock
+                    musicIds:
+                      type: string
+                      example: 1, 23, 35
+                    id:
+                      type: integer
+                      example: 1
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Invalid request"
+    post:
+      description: Create Playlist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: rock
+                musicIds:
+                  type: string
+                  example: 1, 23, 35
+      responses:
+        201:
+          description: Successfully added
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Invalid request"
+  /playlists{id}:
+    description: update, delete, get specific playlist
+    get:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: rock
+                  musicIds:
+                    type: string
+                    example: 1, 23, 35
+                  id:
+                    type: integer
+                    example: 1
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Invalid request"
+    put:
+      description: Update Playlist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: rock
+                musicIds:
+                  type: string
+                  example: 1, 23, 35
+      responses:
+        201:
+          description: Successfully updated
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Invalid request"
+    delete:
+      description: Update Playlist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        201:
+          description: Successfully deleted
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: "Invalid request"
