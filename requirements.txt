@@ -6,3 +6,4 @@ cryptography
 flask-marshmallow
 marshmallow-sqlalchemy
 flask-bcrypt
+flask_httpauth

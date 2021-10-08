@@ -2,6 +2,7 @@ import random
 import marshmallow
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_httpauth import HTTPBasicAuth
 import pymysql
 import json
 from flask_marshmallow import Marshmallow
@@ -14,6 +15,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Gek313nkL@localhost:3306/lab_py'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+auth = HTTPBasicAuth()
 
 bad_request = "{\"code\": 400,\"message\":\"Invalid request\"}"
 
@@ -76,6 +78,13 @@ class Music(db.Model):
         return f"Playlist('{self.playlist_name}', '{self.is_private}', '{self.playlist_id}')"
 
 
+@auth.verify_password
+def verify_password(username, password):
+    user = User.query.filter_by(user_name=username).first()
+    if user is not None and bcrypt.check_password_hash(user.user_password, password):
+        return username
+
+
 @app.route('/hello-world-9')
 def hello_world():
     return 'Hello World 9'
@@ -126,13 +135,15 @@ def add_user():
 
 
 @app.route('/playlist', methods=['POST', 'PUT'])
+@auth.login_required
 def add_playlist():
+    user = User.query.filter_by(user_name=auth.current_user()).first()
     body = request.json
     try:
         name = body['playlist_name']
         is_private = body['is_private']
-        user_id = body['user_id']
-    except KeyError:
+        user_id = user.user_id
+    except Exception:
         return bad_request, 400
     # PUT
     if request.method == 'PUT':
@@ -160,13 +171,18 @@ def add_playlist():
 
 
 @app.route('/music', methods=['POST', 'PUT'])
+@auth.login_required
 def add_music():
+    user = User.query.filter_by(user_name=auth.current_user()).first()
     body = request.json
     try:
         name = body['music_name']
         playlist_id = body['playlist_id']
     except KeyError:
         return bad_request, 400
+    playlist = Playlist.query.filter_by(playlist_id=playlist_id).first()
+    if playlist.is_private and playlist.user_id != user.user_id:
+        return bad_request, 403
         # PUT
     if request.method == 'PUT':
         try:
